@@ -24,16 +24,25 @@ def main(network_name, lp_token):
     stream_deployer = accounts.at(STREAM_DEPLOYER[network_name], True)
     crv = Contract(CRV[network_name])
 
-    gauge = RewardsOnlyGauge.deploy(deployer, lp_token, {"from": deployer, "required_confs": CONFS})
-    claimer = RewardClaimer.deploy(deployer, gauge, {"from": deployer, "required_confs": CONFS})
-    streamer = ChildChainStreamer.deploy(
-        deployer, claimer, crv, {"from": stream_deployer, "required_confs": CONFS}
+    gauge = RewardsOnlyGauge.deploy(
+        deployer, lp_token, {"from": deployer, "priority_fee": "2 gwei", "required_confs": CONFS}
     )
-    claimer.set_reward_data(0, streamer, crv, {"from": deployer, "required_confs": CONFS})
+    claimer = RewardClaimer.deploy(
+        deployer, gauge, {"from": deployer, "priority_fee": "2 gwei", "required_confs": CONFS}
+    )
+    streamer = ChildChainStreamer.deploy(
+        deployer,
+        claimer,
+        crv,
+        {"from": stream_deployer, "priority_fee": "2 gwei", "required_confs": CONFS},
+    )
+    claimer.set_reward_data(
+        0, streamer, crv, {"from": deployer, "priority_fee": "2 gwei", "required_confs": CONFS}
+    )
 
     gauge.set_rewards(
         claimer,
-        f"0x0000000000000000{claimer.get_reward.signature[2:]}" + "00" * 20,
+        claimer.get_reward.signature,
         [crv] + [ZERO_ADDRESS] * 7,
-        {"from": deployer, "required_confs": CONFS},
+        {"from": deployer, "priority_fee": "2 gwei", "required_confs": CONFS},
     )
