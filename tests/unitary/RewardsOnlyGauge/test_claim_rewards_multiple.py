@@ -35,11 +35,7 @@ def claim_tokens() -> bool:
 
 @pytest.fixture(scope="module")
 def reward_contract(alice, coin_a, coin_b):
-    contract = compile_source(code).Vyper.deploy(coin_a, coin_b, {"from": alice})
-    coin_a._mint_for_testing(contract, REWARD * 2)
-    coin_b._mint_for_testing(contract, REWARD * 2)
-
-    yield contract
+    yield compile_source(code).Vyper.deploy(coin_a, coin_b, {"from": alice})
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -60,6 +56,8 @@ def initial_setup(
     rewards_only_gauge.set_rewards(
         reward_contract, sigs, [coin_a, coin_reward, coin_b] + [ZERO_ADDRESS] * 5, {"from": alice}
     )
+    coin_a._mint_for_testing(reward_contract, REWARD * 2)
+    coin_b._mint_for_testing(reward_contract, REWARD * 2)
 
     # Deposit
     mock_lp_token.transfer(bob, LP_AMOUNT, {"from": alice})
@@ -117,6 +115,7 @@ def test_claim_for_other_no_reward(bob, charlie, chain, rewards_only_gauge, coin
     assert coin_b.balanceOf(charlie) == 0
 
 
+@pytest.mark.no_call_coverage
 def test_claim_two_lp(
     alice,
     bob,
@@ -126,7 +125,6 @@ def test_claim_two_lp(
     coin_a,
     coin_b,
     reward_contract,
-    no_call_coverage,
 ):
 
     # Deposit

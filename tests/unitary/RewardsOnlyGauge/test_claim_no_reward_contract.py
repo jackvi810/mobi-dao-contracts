@@ -52,8 +52,14 @@ def test_claim_for_other_no_reward(bob, charlie, chain, rewards_only_gauge, coin
     assert coin_reward.balanceOf(charlie) == 0
 
 
+@pytest.mark.no_call_coverage
 def test_claim_two_lp(
-    alice, bob, chain, rewards_only_gauge, mock_lp_token, coin_reward, no_call_coverage
+    alice,
+    bob,
+    chain,
+    rewards_only_gauge,
+    mock_lp_token,
+    coin_reward,
 ):
     # Deposit
     mock_lp_token.approve(rewards_only_gauge, LP_AMOUNT, {"from": alice})

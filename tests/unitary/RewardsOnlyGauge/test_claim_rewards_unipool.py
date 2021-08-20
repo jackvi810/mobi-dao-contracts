@@ -83,9 +83,8 @@ def test_claim_for_other_no_reward(bob, charlie, chain, rewards_only_gauge, coin
     assert coin_reward.balanceOf(charlie) == 0
 
 
-def test_claim_two_lp(
-    alice, bob, chain, rewards_only_gauge, mock_lp_token, coin_reward, no_call_coverage
-):
+@pytest.mark.no_call_coverage
+def test_claim_two_lp(alice, bob, chain, rewards_only_gauge, mock_lp_token, coin_reward):
 
     # Deposit
     mock_lp_token.approve(rewards_only_gauge, LP_AMOUNT, {"from": alice})
@@ -115,8 +114,9 @@ def test_claim_two_lp(
     assert approx(rewards[0], rewards[1], 2.002 * WEEK)
 
 
+@pytest.mark.no_call_coverage
 def test_claimable_rewards_write_retrieves_rewards(
-    alice, chain, rewards_only_gauge, mock_lp_token, coin_reward, no_call_coverage
+    alice, chain, rewards_only_gauge, mock_lp_token, coin_reward
 ):
 
     # Deposit
