@@ -424,10 +424,7 @@ def set_rewards(_reward_contract: address, _claim_sig: bytes32, _reward_tokens: 
     @dev A reward contract cannot be set while this contract has no deposits
     @param _reward_contract Reward contract address. Set to ZERO_ADDRESS to
                             disable staking.
-    @param _claim_sig Four byte selectors for staking, withdrawing and claiming,
-                 left padded with zero bytes. If the reward contract can
-                 be claimed from but does not require staking, the staking
-                 and withdraw selectors should be set to 0x00
+    @param _claim_sig Four byte selector for claiming rewards, given as a bytes32.
     @param _reward_tokens List of claimable reward tokens. New reward tokens
                           may be added but they cannot be removed. When calling
                           this function to unset or modify a reward contract,
@@ -458,8 +455,8 @@ def set_rewards(_reward_contract: address, _claim_sig: bytes32, _reward_tokens: 
             break
 
     if _reward_contract != ZERO_ADDRESS:
-        # do an initial checkpoint to verify that claims are working
-        self._checkpoint_rewards(ZERO_ADDRESS, total_supply, False, ZERO_ADDRESS)
+        # do an initial claim to verify the signature
+        raw_call(_reward_contract, slice(_claim_sig, 28, 4))  # dev: bad claim sig
 
 
 @external
